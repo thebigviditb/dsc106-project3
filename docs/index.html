@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Not Everywhere Warms Equally</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Not Everywhere Warms Equally</h1>
+    <p class="sub">How much hotter will your part of the world get by 2100? Warming since 1850–1900, from the
+      GFDL-ESM4 climate model (CMIP6).</p>
+  </header>
+
+  <section class="controls">
+    <div class="scenarios" role="group" aria-label="Emissions scenario">
+      <button data-s="ssp126">Low emissions</button>
+      <button data-s="ssp245">Middle</button>
+      <button data-s="ssp585" class="on">High emissions</button>
+    </div>
+    <div class="time">
+      <button id="play" aria-label="Play">▶</button>
+      <input id="year" type="range" min="0" max="0" step="1" value="0" aria-label="Year">
+      <span id="year-label"></span>
+    </div>
+    <div id="global-readout"></div>
+  </section>
+
+  <main>
+    <div id="map"></div>
+    <div id="legend"></div>
+    <section id="detail">
+      <h2 id="detail-title">Click a square on the map</h2>
+      <div id="chart"></div>
+    </section>
+  </main>
+
+  <div id="tooltip" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
