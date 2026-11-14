@@ -63,6 +63,68 @@ Promise.all([d3.json("data/warming.json"), d3.json("data/land-110m.json")]).then
   slider.on("input", function () { state.yearIdx = +this.value; update(); });
   d3.select("#play").on("click", togglePlay);
 
+  d3.select("#search").on("submit", async event => {
+    event.preventDefault();
+    const q = d3.select("#city").property("value").trim();
+    if (!q) return;
+    const status = d3.select("#search-status").text("Searching…");
+    try {
+      const result = await geocode(q.split(",")[0].trim());
+      if (!result) { status.text(`No match for “${q}”.`); return; }
+      const cell = findCell(result.latitude, result.longitude);
+      if (!cell) { status.text("That location is outside the grid."); return; }
+      state.selected = cell;
+      update();
+      status.text(`${result.name}${result.admin1 ? ", " + result.admin1 : ""}, ${result.country} → cell ${place(cell)}`);
+    } catch (err) {
+      status.text("Search failed. Check your connection and try again.");
+    }
+  });
+
+  async function geocode(name) {
+    const url = "https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name="
+      + encodeURIComponent(name);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    return json.results?.[0] ?? null;
+  }
+
+  let typingTimer;
+  d3.select("#city").on("input", function () {
+    clearTimeout(typingTimer);
+    const q = this.value.trim();
+    if (q.length < 2) return;
+    typingTimer = setTimeout(async () => {
+      try {
+        const results = await geocodeMany(q);
+        d3.select("#city-options").selectAll("option")
+          .data(results, d => d.id)
+          .join("option")
+          .attr("value", d => label(d));
+      } catch (err) { /* ignore: autocomplete is optional */ }
+    }, 250);
+  });
+
+  async function geocodeMany(name) {
+    const url = "https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&format=json&name="
+      + encodeURIComponent(name);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    return json.results ?? [];
+  }
+
+  function label(r) {
+    return [r.name, r.admin1, r.country].filter(Boolean).join(", ");
+  }
+
+  function findCell(lat, lon) {
+  const h = STEP / 2;
+  lon = ((lon + 180) % 360 + 360) % 360 - 180;   // normalize to [-180, 180)
+  return cells.find(c => lat >= c.lat - h && lat < c.lat + h && lon >= c.lon - h && lon < c.lon + h) || null;
+}
+
   update();
 
   function update() {

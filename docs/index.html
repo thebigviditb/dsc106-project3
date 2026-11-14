@@ -11,6 +11,12 @@
     <h1>Not Everywhere Warms Equally</h1>
     <p class="sub">How much hotter will your part of the world get by 2100? Warming since 1850–1900, from the
       GFDL-ESM4 climate model (CMIP6).</p>
+    <form id="search" role="search">
+    <input id="city" type="search" list="city-options" placeholder="Search a city…" aria-label="City" autocomplete="off" value="San Diego">
+    <datalist id="city-options"></datalist>
+    <button type="submit">How's my area doing?</button>
+    <span id="search-status" role="status"></span>
+    </form>
   </header>
 
   <section class="controls">
